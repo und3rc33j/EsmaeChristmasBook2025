@@ -272,16 +272,18 @@
      * Example: const IMG_COVER = "images/my cover 1.png"
      * (If you have spaces, it can still work, but renaming is easier.)
      */
-    const IMG_COVER   = "images/cover.jpg";
-    const IMG_CHAOS   = "images/scene-chaos.jpg";
-    const IMG_CAT     = "images/scene-cat.jpg";
-    const IMG_THINK   = "images/scene-thinking.jpg";
-    const IMG_CREATURE= "images/scene-creature.jpg";
-    const IMG_TALK    = "images/scene-talk.jpg";
-    const IMG_WOLF    = "images/scene-wolf.jpg";
-    const IMG_END     = "images/scene-ending.jpg";
-
-    /**
+        const IMG_COVER    = "images/cover.png";
+        const IMG_CHAOS    = "images/scene-chaos.png";
+        const IMG_CAT      = "images/scene-cat.png";
+        const IMG_THINK    = "images/scene-thinking.png";
+        const IMG_CREATURE = "images/scene-creature.png";
+        const IMG_WOLF     = "images/scene-wolf.png";
+        const IMG_END      = "images/scene-ending.png";
+        
+        // reuse wolf image for the talk moment
+        const IMG_TALK = IMG_WOLF;
+    
+      /**
      * Pages: each page can optionally include an image.
      * If img is null, no image shown on that page.
      */
