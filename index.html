@@ -12,12 +12,10 @@
       --text:#f9fafb;
       --muted:#cbd5e1;
       --soft:#94a3b8;
-      --accent:#a78bfa;
       --border:rgba(255,255,255,.10);
       --shadow: 0 10px 30px rgba(0,0,0,.45);
       --radius: 18px;
-      --maxw: 760px;
-      --pad: 20px;
+      --maxw: 860px;
       --font: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
     }
 
@@ -135,23 +133,36 @@
       background: linear-gradient(90deg, rgba(167,139,250,.95), rgba(59,130,246,.85));
     }
 
+    .panel{
+      border-radius: 16px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+
     .story{
       font-size: 22px;
       line-height: 1.5;
       letter-spacing: .2px;
-      padding: 14px 14px 18px 14px;
-      border-radius: 16px;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.06);
-      min-height: 42vh;
+      padding: 16px 14px 18px 14px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       gap: 10px;
+      min-height: 28vh;
+    }
+    .story p{ margin: 0; }
+
+    .illus{
+      width: 100%;
+      display:block;
+      max-height: 62vh;
+      object-fit: cover;
     }
 
-    .story p{
-      margin: 0;
+    .illusWrap{
+      border-top: 1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.10);
     }
 
     .hint{
@@ -199,8 +210,9 @@
     .toast.show{ opacity: 1; }
 
     @media (max-width: 520px){
-      .story{ font-size: 20px; min-height: 48vh; }
+      .story{ font-size: 20px; }
       button{ padding: 10px 11px; font-size: 14px; }
+      .illus{ max-height: 54vh; }
     }
   </style>
 </head>
@@ -227,7 +239,12 @@
           <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
         </div>
 
-        <div class="story" id="story" role="article" aria-live="polite"></div>
+        <div class="panel">
+          <div class="story" id="story" role="article" aria-live="polite"></div>
+          <div class="illusWrap" id="illusWrap" style="display:none;">
+            <img class="illus" id="illus" alt="Story illustration" />
+          </div>
+        </div>
 
         <div class="hint">
           <span>Tap left for back, tap right for next.</span>
@@ -245,28 +262,203 @@
   <div class="toast" id="toast">Saved</div>
 
   <script>
-    // Story pages: keep each page as a short list of paragraphs
+    /**
+     * =========================
+     * IMAGE FILES (EDIT THIS)
+     * =========================
+     * Put your images in /images and set the filenames here.
+     * You can rename your files to match these, OR replace these with your existing names.
+     *
+     * Example: const IMG_COVER = "images/my cover 1.png"
+     * (If you have spaces, it can still work, but renaming is easier.)
+     */
+    const IMG_COVER   = "images/cover.jpg";
+    const IMG_CHAOS   = "images/scene-chaos.jpg";
+    const IMG_CAT     = "images/scene-cat.jpg";
+    const IMG_THINK   = "images/scene-thinking.jpg";
+    const IMG_CREATURE= "images/scene-creature.jpg";
+    const IMG_TALK    = "images/scene-talk.jpg";
+    const IMG_WOLF    = "images/scene-wolf.jpg";
+    const IMG_END     = "images/scene-ending.jpg";
+
+    /**
+     * Pages: each page can optionally include an image.
+     * If img is null, no image shown on that page.
+     */
     const pages = [
-      ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."],
-      ["Esmae could tell when something was weird.", "Not “monster in the cupboard” weird.", "More like… “Why is everyone suddenly acting silly?” weird.", "Her belly did a little ping.", "That was her “something’s off” alarm."],
-      ["The city was bright.", "The signs were shiny.", "The music was loud.", "Nova said, “Best day ever!”", "Luna said, “Nothing can ruin this!”", "Esmae squinted. “That sentence is risky.”"],
-      ["They walked past a shop with a huge smiley face on the window.", "The shopkeeper waved way too much.", "Like his arm was trying to escape.", "Esmae whispered, “Why is he waving like that?”", "Nova shrugged. “He’s friendly.”", "Esmae muttered, “Or he’s hiding something.”"],
-      ["A cat sat on a wall.", "It stared at them.", "It didn’t blink.", "It didn’t move.", "Then it smiled.", "Cats should not smile like that.", "Esmae stopped walking.", "Everyone else kept going."],
-      ["A balloon popped behind them.", "BANG!", "A man dropped his chips.", "A kid tripped over nothing.", "Two friends started arguing about… a sandwich.", "A sandwich!", "Esmae folded her arms. “Yep. Weird.”"],
-      ["Nova huffed. “Esmae, not everything is a clue.”", "Esmae pointed. “That lamppost is leaning.”", "Nova looked. “It’s a lamppost.”", "Esmae pointed again. “That dog is walking backwards.”", "Luna blinked. “Okay… that is odd.”"],
-      ["Esmae’s eyes moved fast.", "She didn’t just look.", "She noticed.", "Little things.", "Tiny things.", "Things that didn’t match.", "Her brain started connecting dots like it was playing a game."],
-      ["Maybe it was the shop.", "Maybe it was the cat.", "Maybe it was… the balloons?", "Esmae gasped. “I KNOW!”", "Everyone leaned in.", "Esmae said, “It’s the ice cream van!”"],
-      ["Nova frowned. “Why?”", "Esmae whispered, dramatic, “Because the jingle is slightly out of tune.”", "They stared at her.", "Esmae added, “That matters.”"],
-      ["They followed the ice cream van.", "Esmae felt proud.", "Then the van stopped.", "The driver hopped out.", "He was normal.", "He was boring.", "He offered them a napkin.", "Esmae blinked. “Oh.”", "Nova smirked. “Pattern… not there?”", "Esmae grinned back. “Testing a theory.”"],
-      ["More chaos started.", "Shoelaces untied themselves.", "A door kept slamming.", "A pigeon stole someone’s hat and wore it like a king.", "The cat was back.", "Still smiling.", "It hopped down and strolled right into the music hall.", "Esmae pointed. “THAT. Follow THAT.”"],
-      ["Inside the music hall, shadows bounced on the walls.", "But not like normal shadows.", "These shadows giggled.", "A small creature zipped across the ceiling like a naughty thought.", "Nova reached for her weapon.", "Luna stepped forward, ready to sing a battle note.", "Esmae held up her hand. “Wait.”"],
-      ["The creature stopped.", "It wasn’t huge.", "It wasn’t terrifying.", "It looked more like a messy puff of smoke with elbows.", "It wore the cat’s smile like a mask.", "Esmae said, “You’re not trying to destroy things.”", "The creature’s smile flickered.", "“You’re trying to be noticed.”"],
-      ["The creature snapped, “NO I’M NOT!”", "But its voice wobbled at the end.", "Esmae stepped closer.", "Not scared.", "Just… serious.", "“I know this one,” she said quietly.", "“People do annoying stuff when they feel invisible.”", "The creature’s shoulders drooped.", "“I just wanted someone to look at me,” it mumbled."],
-      ["Nova whispered, “So… we don’t fight?”", "Esmae looked at the creature. “We fix.”", "She pointed at the mess. “You help clean up.”", "The creature sniffed. “I don’t know how.”", "Esmae said, “Good news. I’m bossy.”", "The creature gave a tiny laugh.", "They worked together.", "Doors stopped slamming.", "Shoes stayed tied.", "The pigeon gave the hat back (grumpily)."],
-      ["When they walked outside, the air felt calmer.", "Nova nudged Esmae. “How did you know?”", "Esmae shrugged like it was no big deal.", "“I watch. I listen. I feel when something’s off.”", "She smiled, fierce and lovable.", "“And sometimes I connect patterns that aren’t there.”", "Nova raised an eyebrow.", "Esmae grinned. “But I’m usually right eventually.”", "The cat blinked.", "Finally.", "Esmae nodded. “Much better.”", "THE END"]
+      {
+        lines: ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."],
+        img: IMG_COVER
+      },
+      {
+        lines: ["Esmae could tell when something was weird.",
+          "Not “monster in the cupboard” weird.",
+          "More like… “Why is everyone suddenly acting silly?” weird.",
+          "Her belly did a little ping.",
+          "That was her “something’s off” alarm."],
+        img: null
+      },
+      {
+        lines: ["The city was bright.",
+          "The signs were shiny.",
+          "The music was loud.",
+          "Nova said, “Best day ever!”",
+          "Luna said, “Nothing can ruin this!”",
+          "Esmae squinted. “That sentence is risky.”"],
+        img: null
+      },
+      {
+        lines: ["They walked past a shop with a huge smiley face on the window.",
+          "The shopkeeper waved way too much.",
+          "Like his arm was trying to escape.",
+          "Esmae whispered, “Why is he waving like that?”",
+          "Nova shrugged. “He’s friendly.”",
+          "Esmae muttered, “Or he’s hiding something.”"],
+        img: null
+      },
+      {
+        lines: ["A cat sat on a wall.",
+          "It stared at them.",
+          "It didn’t blink.",
+          "It didn’t move.",
+          "Then it smiled.",
+          "Cats should not smile like that.",
+          "Esmae stopped walking.",
+          "Everyone else kept going."],
+        img: IMG_CAT
+      },
+      {
+        lines: ["A balloon popped behind them.",
+          "BANG!",
+          "A man dropped his chips.",
+          "A kid tripped over nothing.",
+          "Two friends started arguing about… a sandwich.",
+          "A sandwich!",
+          "Esmae folded her arms. “Yep. Weird.”"],
+        img: IMG_CHAOS
+      },
+      {
+        lines: ["Nova huffed. “Esmae, not everything is a clue.”",
+          "Esmae pointed. “That lamppost is leaning.”",
+          "Nova looked. “It’s a lamppost.”",
+          "Esmae pointed again. “That dog is walking backwards.”",
+          "Luna blinked. “Okay… that is odd.”"],
+        img: null
+      },
+      {
+        lines: ["Esmae’s eyes moved fast.",
+          "She didn’t just look.",
+          "She noticed.",
+          "Little things.",
+          "Tiny things.",
+          "Things that didn’t match.",
+          "Her brain started connecting dots like it was playing a game."],
+        img: IMG_THINK
+      },
+      {
+        lines: ["Maybe it was the shop.",
+          "Maybe it was the cat.",
+          "Maybe it was… the balloons?",
+          "Esmae gasped. “I KNOW!”",
+          "Everyone leaned in.",
+          "Esmae said, “It’s the ice cream van!”"],
+        img: null
+      },
+      {
+        lines: ["Nova frowned. “Why?”",
+          "Esmae whispered, dramatic, “Because the jingle is slightly out of tune.”",
+          "They stared at her.",
+          "Esmae added, “That matters.”"],
+        img: null
+      },
+      {
+        lines: ["They followed the ice cream van.",
+          "Esmae felt proud.",
+          "Then the van stopped.",
+          "The driver hopped out.",
+          "He was normal.",
+          "He was boring.",
+          "He offered them a napkin.",
+          "Esmae blinked. “Oh.”",
+          "Nova smirked. “Pattern… not there?”",
+          "Esmae grinned back. “Testing a theory.”"],
+        img: null
+      },
+      {
+        lines: ["More chaos started.",
+          "Shoelaces untied themselves.",
+          "A door kept slamming.",
+          "A pigeon stole someone’s hat and wore it like a king.",
+          "The cat was back.",
+          "Still smiling.",
+          "It hopped down and strolled right into the music hall.",
+          "Esmae pointed. “THAT. Follow THAT.”"],
+        img: null
+      },
+      {
+        lines: ["Inside the music hall, shadows bounced on the walls.",
+          "But not like normal shadows.",
+          "These shadows giggled.",
+          "A small creature zipped across the ceiling like a naughty thought.",
+          "Nova reached for her weapon.",
+          "Luna stepped forward, ready to sing a battle note.",
+          "Esmae held up her hand. “Wait.”"],
+        img: IMG_CREATURE
+      },
+      {
+        lines: ["The creature stopped.",
+          "It wasn’t huge.",
+          "It wasn’t terrifying.",
+          "It looked more like a messy puff of smoke with elbows.",
+          "It wore the cat’s smile like a mask.",
+          "Esmae said, “You’re not trying to destroy things.”",
+          "The creature’s smile flickered.",
+          "“You’re trying to be noticed.”"],
+        img: null
+      },
+      {
+        lines: ["The creature snapped, “NO I’M NOT!”",
+          "But its voice wobbled at the end.",
+          "Esmae stepped closer.",
+          "Not scared.",
+          "Just… serious.",
+          "“I know this one,” she said quietly.",
+          "“People do annoying stuff when they feel invisible.”",
+          "The creature’s shoulders drooped.",
+          "“I just wanted someone to look at me,” it mumbled."],
+        img: IMG_TALK
+      },
+      {
+        lines: ["Nova whispered, “So… we don’t fight?”",
+          "Esmae looked at the creature. “We fix.”",
+          "She pointed at the mess. “You help clean up.”",
+          "The creature sniffed. “I don’t know how.”",
+          "Esmae said, “Good news. I’m bossy.”",
+          "The creature gave a tiny laugh.",
+          "They worked together.",
+          "Doors stopped slamming.",
+          "Shoes stayed tied.",
+          "The pigeon gave the hat back (grumpily)."],
+        img: null
+      },
+      {
+        lines: ["When they walked outside, the air felt calmer.",
+          "Nova nudged Esmae. “How did you know?”",
+          "Esmae shrugged like it was no big deal.",
+          "“I watch. I listen. I feel when something’s off.”",
+          "She smiled, fierce and lovable.",
+          "“And sometimes I connect patterns that aren’t there.”",
+          "Nova raised an eyebrow.",
+          "Esmae grinned. “But I’m usually right eventually.”",
+          "The cat blinked.",
+          "Finally.",
+          "Esmae nodded. “Much better.”",
+          "THE END"],
+        img: IMG_END
+      }
     ];
 
-    const STORAGE_KEY = "esmae_story_page_v1";
+    const STORAGE_KEY = "esmae_story_page_v2";
 
     const storyEl = document.getElementById("story");
     const pageLabel = document.getElementById("pageLabel");
@@ -279,6 +471,8 @@
     const tapRight = document.getElementById("tapRight");
     const subline = document.getElementById("subline");
     const toast = document.getElementById("toast");
+    const illusWrap = document.getElementById("illusWrap");
+    const illus = document.getElementById("illus");
 
     const maxIndex = pages.length - 1;
 
@@ -288,13 +482,6 @@
       toast.textContent = text || "Saved";
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 700);
-    }
-
-    function saveIndex(i){
-      try{
-        localStorage.setItem(STORAGE_KEY, String(i));
-        showToast("Saved your place");
-      }catch(e){}
     }
 
     function loadIndex(){
@@ -309,13 +496,24 @@
     function render(i){
       const idx = clamp(i, 0, maxIndex);
 
-      // Build paragraphs
+      // Text
       storyEl.innerHTML = "";
-      pages[idx].forEach(line => {
+      pages[idx].lines.forEach(line => {
         const p = document.createElement("p");
         p.textContent = line;
         storyEl.appendChild(p);
       });
+
+      // Image (optional)
+      const imgPath = pages[idx].img;
+      if (imgPath){
+        illus.src = imgPath;
+        illus.alt = "Illustration for page " + (idx + 1);
+        illusWrap.style.display = "block";
+      } else {
+        illus.removeAttribute("src");
+        illusWrap.style.display = "none";
+      }
 
       // Progress + labels
       pageLabel.textContent = `Page ${idx + 1} of ${pages.length}`;
@@ -326,7 +524,7 @@
 
       subline.textContent = idx === 0 ? "Tap next to begin" : "Tap right to turn the page";
 
-      // Save place (quietly)
+      // Save place
       try { localStorage.setItem(STORAGE_KEY, String(idx)); } catch(e) {}
       currentIndex = idx;
     }
@@ -339,7 +537,6 @@
         render(currentIndex + 1);
       }
     }
-
     function back(){
       if (currentIndex > 0){
         render(currentIndex - 1);
@@ -352,7 +549,6 @@
     tapLeft.addEventListener("click", back);
     tapRight.addEventListener("click", next);
 
-    // Keyboard support (handy on laptops)
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") back();
@@ -360,12 +556,20 @@
 
     homeBtn.addEventListener("click", () => {
       render(0);
-      saveIndex(0);
+      try { localStorage.setItem(STORAGE_KEY, "0"); } catch(e) {}
+      showToast("Back to start");
     });
 
     restartBtn.addEventListener("click", () => {
       render(1);
-      saveIndex(1);
+      try { localStorage.setItem(STORAGE_KEY, "1"); } catch(e) {}
+      showToast("Restarted");
+    });
+
+    // If an image fails to load, show a friendly hint (doesn't break reading)
+    illus.addEventListener("error", () => {
+      illusWrap.style.display = "none";
+      showToast("Image not found (check filename)");
     });
   </script>
 </body>
