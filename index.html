@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Esmae and the Thing That Didn’t Feel Right</title>
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#111827;
+      --text:#f9fafb;
+      --muted:#cbd5e1;
+      --soft:#94a3b8;
+      --accent:#a78bfa;
+      --border:rgba(255,255,255,.10);
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --radius: 18px;
+      --maxw: 760px;
+      --pad: 20px;
+      --font: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body{
+      margin:0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(167,139,250,.15), transparent 60%),
+                  radial-gradient(1000px 700px at 90% 80%, rgba(59,130,246,.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .wrap{
+      width: 100%;
+      max-width: var(--maxw);
+      padding: 18px;
+      box-sizing: border-box;
+    }
+
+    .card{
+      background: rgba(17,24,39,.85);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow:hidden;
+      position: relative;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,.12);
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 0;
+    }
+
+    .title h1{
+      font-size: 14px;
+      margin:0;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing:.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .title .sub{
+      font-size: 12px;
+      color: var(--soft);
+    }
+
+    .btns{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-shrink: 0;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    button:active{ transform: translateY(1px); }
+    button[disabled]{ opacity:.45; cursor:not-allowed; }
+
+    .body{
+      padding: 18px 16px 8px 16px;
+      box-sizing: border-box;
+    }
+
+    .pageNo{
+      font-size: 12px;
+      color: var(--soft);
+      margin-bottom: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .progress{
+      height: 8px;
+      background: rgba(255,255,255,.07);
+      border-radius: 999px;
+      overflow:hidden;
+      flex: 1;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(167,139,250,.95), rgba(59,130,246,.85));
+    }
+
+    .story{
+      font-size: 22px;
+      line-height: 1.5;
+      letter-spacing: .2px;
+      padding: 14px 14px 18px 14px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.06);
+      min-height: 42vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap: 10px;
+    }
+
+    .story p{
+      margin: 0;
+    }
+
+    .hint{
+      margin-top: 10px;
+      color: var(--soft);
+      font-size: 13px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    footer{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 16px 16px 16px;
+    }
+
+    .tapZone{
+      position:absolute;
+      top: 56px;
+      bottom: 0;
+      width: 50%;
+      z-index: 5;
+    }
+    .tapLeft{ left:0; }
+    .tapRight{ right:0; }
+
+    .toast{
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.70);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .2s ease;
+    }
+    .toast.show{ opacity: 1; }
+
+    @media (max-width: 520px){
+      .story{ font-size: 20px; min-height: 48vh; }
+      button{ padding: 10px 11px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="tapZone tapLeft" id="tapLeft" aria-hidden="true"></div>
+      <div class="tapZone tapRight" id="tapRight" aria-hidden="true"></div>
+
+      <header>
+        <div class="title">
+          <h1>Esmae and the Thing That Didn’t Feel Right</h1>
+          <div class="sub" id="subline">Tap right to turn the page</div>
+        </div>
+        <div class="btns">
+          <button id="homeBtn" title="Home">Home</button>
+          <button id="restartBtn" title="Restart">Restart</button>
+        </div>
+      </header>
+
+      <div class="body">
+        <div class="pageNo">
+          <span id="pageLabel">Page 1 of 15</span>
+          <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+        </div>
+
+        <div class="story" id="story" role="article" aria-live="polite"></div>
+
+        <div class="hint">
+          <span>Tap left for back, tap right for next.</span>
+          <span id="saveHint">Saves your place.</span>
+        </div>
+      </div>
+
+      <footer>
+        <button id="backBtn">Back</button>
+        <button id="nextBtn">Next</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+  <script>
+    // Story pages: keep each page as a short list of paragraphs
+    const pages = [
+      ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."],
+      ["Esmae could tell when something was weird.", "Not “monster in the cupboard” weird.", "More like… “Why is everyone suddenly acting silly?” weird.", "Her belly did a little ping.", "That was her “something’s off” alarm."],
+      ["The city was bright.", "The signs were shiny.", "The music was loud.", "Nova said, “Best day ever!”", "Luna said, “Nothing can ruin this!”", "Esmae squinted. “That sentence is risky.”"],
+      ["They walked past a shop with a huge smiley face on the window.", "The shopkeeper waved way too much.", "Like his arm was trying to escape.", "Esmae whispered, “Why is he waving like that?”", "Nova shrugged. “He’s friendly.”", "Esmae muttered, “Or he’s hiding something.”"],
+      ["A cat sat on a wall.", "It stared at them.", "It didn’t blink.", "It didn’t move.", "Then it smiled.", "Cats should not smile like that.", "Esmae stopped walking.", "Everyone else kept going."],
+      ["A balloon popped behind them.", "BANG!", "A man dropped his chips.", "A kid tripped over nothing.", "Two friends started arguing about… a sandwich.", "A sandwich!", "Esmae folded her arms. “Yep. Weird.”"],
+      ["Nova huffed. “Esmae, not everything is a clue.”", "Esmae pointed. “That lamppost is leaning.”", "Nova looked. “It’s a lamppost.”", "Esmae pointed again. “That dog is walking backwards.”", "Luna blinked. “Okay… that is odd.”"],
+      ["Esmae’s eyes moved fast.", "She didn’t just look.", "She noticed.", "Little things.", "Tiny things.", "Things that didn’t match.", "Her brain started connecting dots like it was playing a game."],
+      ["Maybe it was the shop.", "Maybe it was the cat.", "Maybe it was… the balloons?", "Esmae gasped. “I KNOW!”", "Everyone leaned in.", "Esmae said, “It’s the ice cream van!”"],
+      ["Nova frowned. “Why?”", "Esmae whispered, dramatic, “Because the jingle is slightly out of tune.”", "They stared at her.", "Esmae added, “That matters.”"],
+      ["They followed the ice cream van.", "Esmae felt proud.", "Then the van stopped.", "The driver hopped out.", "He was normal.", "He was boring.", "He offered them a napkin.", "Esmae blinked. “Oh.”", "Nova smirked. “Pattern… not there?”", "Esmae grinned back. “Testing a theory.”"],
+      ["More chaos started.", "Shoelaces untied themselves.", "A door kept slamming.", "A pigeon stole someone’s hat and wore it like a king.", "The cat was back.", "Still smiling.", "It hopped down and strolled right into the music hall.", "Esmae pointed. “THAT. Follow THAT.”"],
+      ["Inside the music hall, shadows bounced on the walls.", "But not like normal shadows.", "These shadows giggled.", "A small creature zipped across the ceiling like a naughty thought.", "Nova reached for her weapon.", "Luna stepped forward, ready to sing a battle note.", "Esmae held up her hand. “Wait.”"],
+      ["The creature stopped.", "It wasn’t huge.", "It wasn’t terrifying.", "It looked more like a messy puff of smoke with elbows.", "It wore the cat’s smile like a mask.", "Esmae said, “You’re not trying to destroy things.”", "The creature’s smile flickered.", "“You’re trying to be noticed.”"],
+      ["The creature snapped, “NO I’M NOT!”", "But its voice wobbled at the end.", "Esmae stepped closer.", "Not scared.", "Just… serious.", "“I know this one,” she said quietly.", "“People do annoying stuff when they feel invisible.”", "The creature’s shoulders drooped.", "“I just wanted someone to look at me,” it mumbled."],
+      ["Nova whispered, “So… we don’t fight?”", "Esmae looked at the creature. “We fix.”", "She pointed at the mess. “You help clean up.”", "The creature sniffed. “I don’t know how.”", "Esmae said, “Good news. I’m bossy.”", "The creature gave a tiny laugh.", "They worked together.", "Doors stopped slamming.", "Shoes stayed tied.", "The pigeon gave the hat back (grumpily)."],
+      ["When they walked outside, the air felt calmer.", "Nova nudged Esmae. “How did you know?”", "Esmae shrugged like it was no big deal.", "“I watch. I listen. I feel when something’s off.”", "She smiled, fierce and lovable.", "“And sometimes I connect patterns that aren’t there.”", "Nova raised an eyebrow.", "Esmae grinned. “But I’m usually right eventually.”", "The cat blinked.", "Finally.", "Esmae nodded. “Much better.”", "THE END"]
+    ];
+
+    const STORAGE_KEY = "esmae_story_page_v1";
+
+    const storyEl = document.getElementById("story");
+    const pageLabel = document.getElementById("pageLabel");
+    const bar = document.getElementById("bar");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const tapLeft = document.getElementById("tapLeft");
+    const tapRight = document.getElementById("tapRight");
+    const subline = document.getElementById("subline");
+    const toast = document.getElementById("toast");
+
+    const maxIndex = pages.length - 1;
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    function showToast(text){
+      toast.textContent = text || "Saved";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 700);
+    }
+
+    function saveIndex(i){
+      try{
+        localStorage.setItem(STORAGE_KEY, String(i));
+        showToast("Saved your place");
+      }catch(e){}
+    }
+
+    function loadIndex(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const i = raw === null ? 0 : parseInt(raw, 10);
+        if (Number.isFinite(i)) return clamp(i, 0, maxIndex);
+      }catch(e){}
+      return 0;
+    }
+
+    function render(i){
+      const idx = clamp(i, 0, maxIndex);
+
+      // Build paragraphs
+      storyEl.innerHTML = "";
+      pages[idx].forEach(line => {
+        const p = document.createElement("p");
+        p.textContent = line;
+        storyEl.appendChild(p);
+      });
+
+      // Progress + labels
+      pageLabel.textContent = `Page ${idx + 1} of ${pages.length}`;
+      bar.style.width = `${Math.round(((idx + 1) / pages.length) * 100)}%`;
+
+      backBtn.disabled = idx === 0;
+      nextBtn.disabled = idx === maxIndex;
+
+      subline.textContent = idx === 0 ? "Tap next to begin" : "Tap right to turn the page";
+
+      // Save place (quietly)
+      try { localStorage.setItem(STORAGE_KEY, String(idx)); } catch(e) {}
+      currentIndex = idx;
+    }
+
+    let currentIndex = loadIndex();
+    render(currentIndex);
+
+    function next(){
+      if (currentIndex < maxIndex){
+        render(currentIndex + 1);
+      }
+    }
+
+    function back(){
+      if (currentIndex > 0){
+        render(currentIndex - 1);
+      }
+    }
+
+    backBtn.addEventListener("click", back);
+    nextBtn.addEventListener("click", next);
+
+    tapLeft.addEventListener("click", back);
+    tapRight.addEventListener("click", next);
+
+    // Keyboard support (handy on laptops)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") back();
+    });
+
+    homeBtn.addEventListener("click", () => {
+      render(0);
+      saveIndex(0);
+    });
+
+    restartBtn.addEventListener("click", () => {
+      render(1);
+      saveIndex(1);
+    });
+  </script>
+</body>
+</html>
