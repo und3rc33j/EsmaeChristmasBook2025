@@ -4,16 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Esmae and the Thing That Didn’t Feel Right</title>
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#1b130f" />
   <style>
     :root{
-      --bg:#0b1020;
-      --card:#111827;
-      --text:#f9fafb;
-      --muted:#cbd5e1;
-      --soft:#94a3b8;
-      --border:rgba(255,255,255,.10);
-      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --bg0:#120c0a;
+      --bg1:#1b130f;
+      --card: rgba(20, 14, 12, .78);
+      --text:#fbf7f2;
+      --muted:#f2e7db;
+      --soft:#d5c6b6;
+      --border:rgba(255,255,255,.12);
+      --shadow: 0 12px 40px rgba(0,0,0,.55);
       --radius: 18px;
       --maxw: 860px;
       --font: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
@@ -22,14 +23,17 @@
     body{
       margin:0;
       font-family: var(--font);
-      background: radial-gradient(1200px 700px at 20% 10%, rgba(167,139,250,.15), transparent 60%),
-                  radial-gradient(1000px 700px at 90% 80%, rgba(59,130,246,.10), transparent 55%),
-                  var(--bg);
       color: var(--text);
       min-height: 100vh;
       display:flex;
       align-items:center;
       justify-content:center;
+
+      background:
+        radial-gradient(900px 600px at 15% 20%, rgba(255, 175, 120, .18), transparent 60%),
+        radial-gradient(800px 520px at 85% 75%, rgba(255, 210, 140, .12), transparent 55%),
+        radial-gradient(700px 480px at 55% 5%, rgba(255, 120, 90, .10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
     }
 
     .wrap{
@@ -40,12 +44,14 @@
     }
 
     .card{
-      background: rgba(17,24,39,.85);
+      background: var(--card);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
       overflow:hidden;
       position: relative;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     header{
@@ -55,7 +61,7 @@
       gap: 12px;
       padding: 14px 16px;
       border-bottom: 1px solid var(--border);
-      background: rgba(0,0,0,.12);
+      background: rgba(0,0,0,.10);
     }
 
     .title{
@@ -68,7 +74,7 @@
     .title h1{
       font-size: 14px;
       margin:0;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--muted);
       letter-spacing:.2px;
       white-space: nowrap;
@@ -90,12 +96,12 @@
 
     button{
       appearance:none;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255,255,255,.18);
       background: rgba(255,255,255,.06);
       color: var(--text);
       padding: 10px 12px;
       border-radius: 12px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 14px;
       cursor: pointer;
       user-select:none;
@@ -121,48 +127,90 @@
 
     .progress{
       height: 8px;
-      background: rgba(255,255,255,.07);
+      background: rgba(255,255,255,.08);
       border-radius: 999px;
       overflow:hidden;
       flex: 1;
-      border: 1px solid rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
     }
     .bar{
       height:100%;
       width:0%;
-      background: linear-gradient(90deg, rgba(167,139,250,.95), rgba(59,130,246,.85));
+      background: linear-gradient(90deg, rgba(255, 180, 120, .95), rgba(255, 120, 90, .85));
     }
 
     .panel{
       border-radius: 16px;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.10);
       overflow:hidden;
     }
 
     .story{
       font-size: 22px;
-      line-height: 1.5;
+      line-height: 1.55;
       letter-spacing: .2px;
       padding: 16px 14px 18px 14px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       gap: 10px;
-      min-height: 28vh;
+      min-height: 26vh;
     }
     .story p{ margin: 0; }
 
-    .illus{
-      width: 100%;
-      display:block;
-      max-height: 62vh;
-      object-fit: cover;
+    /* Illustration area reserves space to avoid layout jump */
+    .illusWrap{
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      padding: 10px;
     }
 
-    .illusWrap{
-      border-top: 1px solid rgba(255,255,255,.06);
-      background: rgba(0,0,0,.10);
+    .illusFrame{
+      position: relative;
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      aspect-ratio: 1 / 1; /* Square space reserved */
+    }
+
+    .illus{
+      width: 100%;
+      height: 100%;
+      display:block;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+    .illus.loaded{ opacity: 1; }
+
+    .illusLoading{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      color: rgba(255,255,255,.75);
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 190, 130, .7);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+    .dot:nth-child(2){ animation-delay: .15s; opacity:.8; }
+    .dot:nth-child(3){ animation-delay: .30s; opacity:.6; }
+
+    @keyframes pulse{
+      0%,100%{ transform: translateY(0); opacity:.4; }
+      50%{ transform: translateY(-4px); opacity: 1; }
     }
 
     .hint{
@@ -198,7 +246,7 @@
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0,0,0,.70);
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.14);
       padding: 10px 12px;
       border-radius: 12px;
       color: var(--text);
@@ -212,7 +260,6 @@
     @media (max-width: 520px){
       .story{ font-size: 20px; }
       button{ padding: 10px 11px; font-size: 14px; }
-      .illus{ max-height: 54vh; }
     }
   </style>
 </head>
@@ -241,8 +288,15 @@
 
         <div class="panel">
           <div class="story" id="story" role="article" aria-live="polite"></div>
+
           <div class="illusWrap" id="illusWrap" style="display:none;">
-            <img class="illus" id="illus" alt="Story illustration" />
+            <div class="illusFrame">
+              <img class="illus" id="illus" alt="Story illustration" />
+              <div class="illusLoading" id="illusLoading" aria-hidden="true">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                <div>Loading picture…</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -262,205 +316,38 @@
   <div class="toast" id="toast">Saved</div>
 
   <script>
-    /**
-     * =========================
-     * IMAGE FILES (EDIT THIS)
-     * =========================
-     * Put your images in /images and set the filenames here.
-     * You can rename your files to match these, OR replace these with your existing names.
-     *
-     * Example: const IMG_COVER = "images/my cover 1.png"
-     * (If you have spaces, it can still work, but renaming is easier.)
-     */
-        const IMG_COVER    = "images/cover.png";
-        const IMG_CHAOS    = "images/scene-chaos.png";
-        const IMG_CAT      = "images/scene-cat.png";
-        const IMG_THINK    = "images/scene-thinking.png";
-        const IMG_CREATURE = "images/scene-creature.png";
-        const IMG_WOLF     = "images/scene-wolf.png";
-        const IMG_END      = "images/scene-ending.png";
-        
-        // reuse wolf image for the talk moment
-        const IMG_TALK = IMG_WOLF;
-    
-      /**
-     * Pages: each page can optionally include an image.
-     * If img is null, no image shown on that page.
-     */
+    // Edit these paths to match where your images actually are:
+    // If your images are in the repo root, use "cover.png" not "images/cover.png".
+    const IMG_COVER     = "images/cover.png";
+    const IMG_CHAOS     = "images/scene-chaos.png";
+    const IMG_CAT       = "images/scene-cat.png";
+    const IMG_THINK     = "images/scene-thinking.png";
+    const IMG_CREATURE  = "images/scene-creature.png";
+    const IMG_WOLF      = "images/scene-wolf.png";
+    const IMG_END       = "images/scene-ending.png";
+    const IMG_TALK      = IMG_WOLF; // reuse wolf for talk moment
+
     const pages = [
-      {
-        lines: ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."],
-        img: IMG_COVER
-      },
-      {
-        lines: ["Esmae could tell when something was weird.",
-          "Not “monster in the cupboard” weird.",
-          "More like… “Why is everyone suddenly acting silly?” weird.",
-          "Her belly did a little ping.",
-          "That was her “something’s off” alarm."],
-        img: null
-      },
-      {
-        lines: ["The city was bright.",
-          "The signs were shiny.",
-          "The music was loud.",
-          "Nova said, “Best day ever!”",
-          "Luna said, “Nothing can ruin this!”",
-          "Esmae squinted. “That sentence is risky.”"],
-        img: null
-      },
-      {
-        lines: ["They walked past a shop with a huge smiley face on the window.",
-          "The shopkeeper waved way too much.",
-          "Like his arm was trying to escape.",
-          "Esmae whispered, “Why is he waving like that?”",
-          "Nova shrugged. “He’s friendly.”",
-          "Esmae muttered, “Or he’s hiding something.”"],
-        img: null
-      },
-      {
-        lines: ["A cat sat on a wall.",
-          "It stared at them.",
-          "It didn’t blink.",
-          "It didn’t move.",
-          "Then it smiled.",
-          "Cats should not smile like that.",
-          "Esmae stopped walking.",
-          "Everyone else kept going."],
-        img: IMG_CAT
-      },
-      {
-        lines: ["A balloon popped behind them.",
-          "BANG!",
-          "A man dropped his chips.",
-          "A kid tripped over nothing.",
-          "Two friends started arguing about… a sandwich.",
-          "A sandwich!",
-          "Esmae folded her arms. “Yep. Weird.”"],
-        img: IMG_CHAOS
-      },
-      {
-        lines: ["Nova huffed. “Esmae, not everything is a clue.”",
-          "Esmae pointed. “That lamppost is leaning.”",
-          "Nova looked. “It’s a lamppost.”",
-          "Esmae pointed again. “That dog is walking backwards.”",
-          "Luna blinked. “Okay… that is odd.”"],
-        img: null
-      },
-      {
-        lines: ["Esmae’s eyes moved fast.",
-          "She didn’t just look.",
-          "She noticed.",
-          "Little things.",
-          "Tiny things.",
-          "Things that didn’t match.",
-          "Her brain started connecting dots like it was playing a game."],
-        img: IMG_THINK
-      },
-      {
-        lines: ["Maybe it was the shop.",
-          "Maybe it was the cat.",
-          "Maybe it was… the balloons?",
-          "Esmae gasped. “I KNOW!”",
-          "Everyone leaned in.",
-          "Esmae said, “It’s the ice cream van!”"],
-        img: null
-      },
-      {
-        lines: ["Nova frowned. “Why?”",
-          "Esmae whispered, dramatic, “Because the jingle is slightly out of tune.”",
-          "They stared at her.",
-          "Esmae added, “That matters.”"],
-        img: null
-      },
-      {
-        lines: ["They followed the ice cream van.",
-          "Esmae felt proud.",
-          "Then the van stopped.",
-          "The driver hopped out.",
-          "He was normal.",
-          "He was boring.",
-          "He offered them a napkin.",
-          "Esmae blinked. “Oh.”",
-          "Nova smirked. “Pattern… not there?”",
-          "Esmae grinned back. “Testing a theory.”"],
-        img: null
-      },
-      {
-        lines: ["More chaos started.",
-          "Shoelaces untied themselves.",
-          "A door kept slamming.",
-          "A pigeon stole someone’s hat and wore it like a king.",
-          "The cat was back.",
-          "Still smiling.",
-          "It hopped down and strolled right into the music hall.",
-          "Esmae pointed. “THAT. Follow THAT.”"],
-        img: null
-      },
-      {
-        lines: ["Inside the music hall, shadows bounced on the walls.",
-          "But not like normal shadows.",
-          "These shadows giggled.",
-          "A small creature zipped across the ceiling like a naughty thought.",
-          "Nova reached for her weapon.",
-          "Luna stepped forward, ready to sing a battle note.",
-          "Esmae held up her hand. “Wait.”"],
-        img: IMG_CREATURE
-      },
-      {
-        lines: ["The creature stopped.",
-          "It wasn’t huge.",
-          "It wasn’t terrifying.",
-          "It looked more like a messy puff of smoke with elbows.",
-          "It wore the cat’s smile like a mask.",
-          "Esmae said, “You’re not trying to destroy things.”",
-          "The creature’s smile flickered.",
-          "“You’re trying to be noticed.”"],
-        img: null
-      },
-      {
-        lines: ["The creature snapped, “NO I’M NOT!”",
-          "But its voice wobbled at the end.",
-          "Esmae stepped closer.",
-          "Not scared.",
-          "Just… serious.",
-          "“I know this one,” she said quietly.",
-          "“People do annoying stuff when they feel invisible.”",
-          "The creature’s shoulders drooped.",
-          "“I just wanted someone to look at me,” it mumbled."],
-        img: IMG_TALK
-      },
-      {
-        lines: ["Nova whispered, “So… we don’t fight?”",
-          "Esmae looked at the creature. “We fix.”",
-          "She pointed at the mess. “You help clean up.”",
-          "The creature sniffed. “I don’t know how.”",
-          "Esmae said, “Good news. I’m bossy.”",
-          "The creature gave a tiny laugh.",
-          "They worked together.",
-          "Doors stopped slamming.",
-          "Shoes stayed tied.",
-          "The pigeon gave the hat back (grumpily)."],
-        img: null
-      },
-      {
-        lines: ["When they walked outside, the air felt calmer.",
-          "Nova nudged Esmae. “How did you know?”",
-          "Esmae shrugged like it was no big deal.",
-          "“I watch. I listen. I feel when something’s off.”",
-          "She smiled, fierce and lovable.",
-          "“And sometimes I connect patterns that aren’t there.”",
-          "Nova raised an eyebrow.",
-          "Esmae grinned. “But I’m usually right eventually.”",
-          "The cat blinked.",
-          "Finally.",
-          "Esmae nodded. “Much better.”",
-          "THE END"],
-        img: IMG_END
-      }
+      { lines: ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."], img: IMG_COVER },
+      { lines: ["Esmae could tell when something was weird.","Not “monster in the cupboard” weird.","More like… “Why is everyone suddenly acting silly?” weird.","Her belly did a little ping.","That was her “something’s off” alarm."], img: null },
+      { lines: ["The city was bright.","The signs were shiny.","The music was loud.","Nova said, “Best day ever!”","Luna said, “Nothing can ruin this!”","Esmae squinted. “That sentence is risky.”"], img: null },
+      { lines: ["They walked past a shop with a huge smiley face on the window.","The shopkeeper waved way too much.","Like his arm was trying to escape.","Esmae whispered, “Why is he waving like that?”","Nova shrugged. “He’s friendly.”","Esmae muttered, “Or he’s hiding something.”"], img: null },
+      { lines: ["A cat sat on a wall.","It stared at them.","It didn’t blink.","It didn’t move.","Then it smiled.","Cats should not smile like that.","Esmae stopped walking.","Everyone else kept going."], img: IMG_CAT },
+      { lines: ["A balloon popped behind them.","BANG!","A man dropped his chips.","A kid tripped over nothing.","Two friends started arguing about… a sandwich.","A sandwich!","Esmae folded her arms. “Yep. Weird.”"], img: IMG_CHAOS },
+      { lines: ["Nova huffed. “Esmae, not everything is a clue.”","Esmae pointed. “That lamppost is leaning.”","Nova looked. “It’s a lamppost.”","Esmae pointed again. “That dog is walking backwards.”","Luna blinked. “Okay… that is odd.”"], img: null },
+      { lines: ["Esmae’s eyes moved fast.","She didn’t just look.","She noticed.","Little things.","Tiny things.","Things that didn’t match.","Her brain started connecting dots like it was playing a game."], img: IMG_THINK },
+      { lines: ["Maybe it was the shop.","Maybe it was the cat.","Maybe it was… the balloons?","Esmae gasped. “I KNOW!”","Everyone leaned in.","Esmae said, “It’s the ice cream van!”"], img: null },
+      { lines: ["Nova frowned. “Why?”","Esmae whispered, dramatic, “Because the jingle is slightly out of tune.”","They stared at her.","Esmae added, “That matters.”"], img: null },
+      { lines: ["They followed the ice cream van.","Esmae felt proud.","Then the van stopped.","The driver hopped out.","He was normal.","He was boring.","He offered them a napkin.","Esmae blinked. “Oh.”","Nova smirked. “Pattern… not there?”","Esmae grinned back. “Testing a theory.”"], img: null },
+      { lines: ["More chaos started.","Shoelaces untied themselves.","A door kept slamming.","A pigeon stole someone’s hat and wore it like a king.","The cat was back.","Still smiling.","It hopped down and strolled right into the music hall.","Esmae pointed. “THAT. Follow THAT.”"], img: null },
+      { lines: ["Inside the music hall, shadows bounced on the walls.","But not like normal shadows.","These shadows giggled.","A small creature zipped across the ceiling like a naughty thought.","Nova reached for her weapon.","Luna stepped forward, ready to sing a battle note.","Esmae held up her hand. “Wait.”"], img: IMG_CREATURE },
+      { lines: ["The creature stopped.","It wasn’t huge.","It wasn’t terrifying.","It looked more like a messy puff of smoke with elbows.","It wore the cat’s smile like a mask.","Esmae said, “You’re not trying to destroy things.”","The creature’s smile flickered.","“You’re trying to be noticed.”"], img: null },
+      { lines: ["The creature snapped, “NO I’M NOT!”","But its voice wobbled at the end.","Esmae stepped closer.","Not scared.","Just… serious.","“I know this one,” she said quietly.","“People do annoying stuff when they feel invisible.”","The creature’s shoulders drooped.","“I just wanted someone to look at me,” it mumbled."], img: IMG_TALK },
+      { lines: ["Nova whispered, “So… we don’t fight?”","Esmae looked at the creature. “We fix.”","She pointed at the mess. “You help clean up.”","The creature sniffed. “I don’t know how.”","Esmae said, “Good news. I’m bossy.”","The creature gave a tiny laugh.","They worked together.","Doors stopped slamming.","Shoes stayed tied.","The pigeon gave the hat back (grumpily)."], img: null },
+      { lines: ["When they walked outside, the air felt calmer.","Nova nudged Esmae. “How did you know?”","Esmae shrugged like it was no big deal.","“I watch. I listen. I feel when something’s off.”","She smiled, fierce and lovable.","“And sometimes I connect patterns that aren’t there.”","Nova raised an eyebrow.","Esmae grinned. “But I’m usually right eventually.”","The cat blinked.","Finally.","Esmae nodded. “Much better.”","THE END"], img: IMG_END }
     ];
 
-    const STORAGE_KEY = "esmae_story_page_v2";
+    const STORAGE_KEY = "esmae_story_page_v3";
 
     const storyEl = document.getElementById("story");
     const pageLabel = document.getElementById("pageLabel");
@@ -475,6 +362,7 @@
     const toast = document.getElementById("toast");
     const illusWrap = document.getElementById("illusWrap");
     const illus = document.getElementById("illus");
+    const illusLoading = document.getElementById("illusLoading");
 
     const maxIndex = pages.length - 1;
 
@@ -483,7 +371,7 @@
     function showToast(text){
       toast.textContent = text || "Saved";
       toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 700);
+      setTimeout(() => toast.classList.remove("show"), 800);
     }
 
     function loadIndex(){
@@ -493,6 +381,13 @@
         if (Number.isFinite(i)) return clamp(i, 0, maxIndex);
       }catch(e){}
       return 0;
+    }
+
+    // Preload images to reduce clunky feeling
+    function preloadImages(){
+      const set = new Set();
+      pages.forEach(p => { if (p.img) set.add(p.img); });
+      set.forEach(src => { const im = new Image(); im.src = src; });
     }
 
     function render(i){
@@ -509,12 +404,24 @@
       // Image (optional)
       const imgPath = pages[idx].img;
       if (imgPath){
-        illus.src = imgPath;
-        illus.alt = "Illustration for page " + (idx + 1);
+        illus.classList.remove("loaded");
+        illusLoading.style.display = "flex";
         illusWrap.style.display = "block";
+        illus.alt = "Illustration for page " + (idx + 1);
+
+        // Force new load only if changed
+        if (illus.getAttribute("data-src") !== imgPath){
+          illus.setAttribute("data-src", imgPath);
+          illus.src = imgPath;
+        } else {
+          // Already loaded previously
+          illus.classList.add("loaded");
+          illusLoading.style.display = "none";
+        }
       } else {
-        illus.removeAttribute("src");
         illusWrap.style.display = "none";
+        illus.removeAttribute("src");
+        illus.removeAttribute("data-src");
       }
 
       // Progress + labels
@@ -532,18 +439,11 @@
     }
 
     let currentIndex = loadIndex();
+    preloadImages();
     render(currentIndex);
 
-    function next(){
-      if (currentIndex < maxIndex){
-        render(currentIndex + 1);
-      }
-    }
-    function back(){
-      if (currentIndex > 0){
-        render(currentIndex - 1);
-      }
-    }
+    function next(){ if (currentIndex < maxIndex) render(currentIndex + 1); }
+    function back(){ if (currentIndex > 0) render(currentIndex - 1); }
 
     backBtn.addEventListener("click", back);
     nextBtn.addEventListener("click", next);
@@ -568,10 +468,14 @@
       showToast("Restarted");
     });
 
-    // If an image fails to load, show a friendly hint (doesn't break reading)
+    illus.addEventListener("load", () => {
+      illus.classList.add("loaded");
+      illusLoading.style.display = "none";
+    });
+
     illus.addEventListener("error", () => {
       illusWrap.style.display = "none";
-      showToast("Image not found (check filename)");
+      showToast("Image not found (check filename/path)");
     });
   </script>
 </body>
