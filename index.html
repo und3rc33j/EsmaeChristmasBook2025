@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Esmae and the Thing That Didn’t Feel Right</title>
   <meta name="theme-color" content="#1b130f" />
   <style>
@@ -16,34 +16,47 @@
       --border:rgba(255,255,255,.12);
       --shadow: 0 12px 40px rgba(0,0,0,.55);
       --radius: 18px;
-      --maxw: 860px;
+      --maxw: 980px;
       --font: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+
+      /* Auto-fit controls */
+      --baseFont: 22px;   /* starting font size */
+      --minFont: 16px;    /* don’t go below this */
+      --baseLine: 1.55;
+    }
+
+    html, body{
+      height: 100%;
+      overflow: hidden; /* stop page scrolling */
     }
 
     body{
       margin:0;
       font-family: var(--font);
       color: var(--text);
-      min-height: 100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
 
       background:
         radial-gradient(900px 600px at 15% 20%, rgba(255, 175, 120, .18), transparent 60%),
         radial-gradient(800px 520px at 85% 75%, rgba(255, 210, 140, .12), transparent 55%),
         radial-gradient(700px 480px at 55% 5%, rgba(255, 120, 90, .10), transparent 60%),
         linear-gradient(180deg, var(--bg1), var(--bg0));
+
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      padding: 14px;
+      box-sizing: border-box;
     }
 
     .wrap{
       width: 100%;
       max-width: var(--maxw);
-      padding: 18px;
+      height: 100%;
       box-sizing: border-box;
     }
 
     .card{
+      height: 100%;
       background: var(--card);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
@@ -52,9 +65,13 @@
       position: relative;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+
+      display:flex;
+      flex-direction: column; /* header / body / footer fixed */
     }
 
     header{
+      flex: 0 0 auto;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -106,19 +123,25 @@
       cursor: pointer;
       user-select:none;
       touch-action: manipulation;
+      white-space: nowrap;
     }
     button:active{ transform: translateY(1px); }
     button[disabled]{ opacity:.45; cursor:not-allowed; }
 
     .body{
-      padding: 18px 16px 8px 16px;
+      flex: 1 1 auto;            /* take remaining space */
+      min-height: 0;             /* critical: allows internal flex children to size properly */
+      padding: 14px 16px 10px 16px;
       box-sizing: border-box;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .pageNo{
+      flex: 0 0 auto;
       font-size: 12px;
       color: var(--soft);
-      margin-bottom: 10px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -140,40 +163,52 @@
     }
 
     .panel{
+      flex: 1 1 auto;
+      min-height: 0;
       border-radius: 16px;
       background: rgba(0,0,0,.18);
       border: 1px solid rgba(255,255,255,.10);
-      overflow:hidden;
+      overflow: hidden;          /* no scrolling inside */
+      display:flex;
+      flex-direction: column;
     }
 
     .story{
-      font-size: 22px;
-      line-height: 1.55;
-      letter-spacing: .2px;
-      padding: 16px 14px 18px 14px;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 14px 14px 10px 14px;
       display:flex;
       flex-direction:column;
       justify-content:center;
-      gap: 10px;
-      min-height: 26vh;
+      gap: 8px;
+
+      font-size: var(--baseFont);
+      line-height: var(--baseLine);
+      letter-spacing: .2px;
     }
     .story p{ margin: 0; }
 
-    /* Illustration area reserves space to avoid layout jump */
+    /* Illustration area */
     .illusWrap{
+      flex: 0 0 auto;
       border-top: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.10);
       padding: 10px;
+      display:none;
     }
 
     .illusFrame{
-      position: relative;
       width: 100%;
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.04);
-      aspect-ratio: 1 / 1; /* Square space reserved */
+      position: relative;
+
+      /* Will be controlled by JS, but provide sane default */
+      height: 34vh;
+      max-height: 360px;
+      min-height: 160px;
     }
 
     .illus{
@@ -182,7 +217,7 @@
       display:block;
       object-fit: cover;
       opacity: 0;
-      transition: opacity .35s ease;
+      transition: opacity .25s ease;
     }
     .illus.loaded{ opacity: 1; }
 
@@ -197,7 +232,6 @@
       font-size: 13px;
       letter-spacing:.2px;
     }
-
     .dot{
       width: 8px;
       height: 8px;
@@ -207,14 +241,13 @@
     }
     .dot:nth-child(2){ animation-delay: .15s; opacity:.8; }
     .dot:nth-child(3){ animation-delay: .30s; opacity:.6; }
-
     @keyframes pulse{
       0%,100%{ transform: translateY(0); opacity:.4; }
       50%{ transform: translateY(-4px); opacity: 1; }
     }
 
     .hint{
-      margin-top: 10px;
+      flex: 0 0 auto;
       color: var(--soft);
       font-size: 13px;
       display:flex;
@@ -224,16 +257,19 @@
     }
 
     footer{
+      flex: 0 0 auto; /* always visible */
       display:flex;
       justify-content:space-between;
       gap: 10px;
       padding: 12px 16px 16px 16px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.08);
     }
 
     .tapZone{
       position:absolute;
       top: 56px;
-      bottom: 0;
+      bottom: 64px; /* leave footer area clickable for buttons */
       width: 50%;
       z-index: 5;
     }
@@ -258,7 +294,6 @@
     .toast.show{ opacity: 1; }
 
     @media (max-width: 520px){
-      .story{ font-size: 20px; }
       button{ padding: 10px 11px; font-size: 14px; }
     }
   </style>
@@ -286,11 +321,11 @@
           <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="panel">
           <div class="story" id="story" role="article" aria-live="polite"></div>
 
-          <div class="illusWrap" id="illusWrap" style="display:none;">
-            <div class="illusFrame">
+          <div class="illusWrap" id="illusWrap">
+            <div class="illusFrame" id="illusFrame">
               <img class="illus" id="illus" alt="Story illustration" />
               <div class="illusLoading" id="illusLoading" aria-hidden="true">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -302,7 +337,7 @@
 
         <div class="hint">
           <span>Tap left for back, tap right for next.</span>
-          <span id="saveHint">Saves your place.</span>
+          <span>Saves your place.</span>
         </div>
       </div>
 
@@ -316,8 +351,7 @@
   <div class="toast" id="toast">Saved</div>
 
   <script>
-    // Edit these paths to match where your images actually are:
-    // If your images are in the repo root, use "cover.png" not "images/cover.png".
+    // If your images are in the repo root, remove "images/" from these paths.
     const IMG_COVER     = "images/cover.png";
     const IMG_CHAOS     = "images/scene-chaos.png";
     const IMG_CAT       = "images/scene-cat.png";
@@ -325,7 +359,7 @@
     const IMG_CREATURE  = "images/scene-creature.png";
     const IMG_WOLF      = "images/scene-wolf.png";
     const IMG_END       = "images/scene-ending.png";
-    const IMG_TALK      = IMG_WOLF; // reuse wolf for talk moment
+    const IMG_TALK      = IMG_WOLF;
 
     const pages = [
       { lines: ["ESMAE AND THE THING THAT DIDN’T FEEL RIGHT", "A little story for Esmae.", "Tap next to begin."], img: IMG_COVER },
@@ -347,7 +381,7 @@
       { lines: ["When they walked outside, the air felt calmer.","Nova nudged Esmae. “How did you know?”","Esmae shrugged like it was no big deal.","“I watch. I listen. I feel when something’s off.”","She smiled, fierce and lovable.","“And sometimes I connect patterns that aren’t there.”","Nova raised an eyebrow.","Esmae grinned. “But I’m usually right eventually.”","The cat blinked.","Finally.","Esmae nodded. “Much better.”","THE END"], img: IMG_END }
     ];
 
-    const STORAGE_KEY = "esmae_story_page_v3";
+    const STORAGE_KEY = "esmae_story_page_v4";
 
     const storyEl = document.getElementById("story");
     const pageLabel = document.getElementById("pageLabel");
@@ -360,7 +394,10 @@
     const tapRight = document.getElementById("tapRight");
     const subline = document.getElementById("subline");
     const toast = document.getElementById("toast");
+
+    const panel = document.getElementById("panel");
     const illusWrap = document.getElementById("illusWrap");
+    const illusFrame = document.getElementById("illusFrame");
     const illus = document.getElementById("illus");
     const illusLoading = document.getElementById("illusLoading");
 
@@ -383,11 +420,60 @@
       return 0;
     }
 
-    // Preload images to reduce clunky feeling
     function preloadImages(){
       const set = new Set();
       pages.forEach(p => { if (p.img) set.add(p.img); });
       set.forEach(src => { const im = new Image(); im.src = src; });
+    }
+
+    // Auto-fit: shrink font (and image height a bit) so everything fits with no scrolling.
+    function autoFit(){
+      // Reset
+      storyEl.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue("--baseFont").trim();
+      storyEl.style.lineHeight = getComputedStyle(document.documentElement).getPropertyValue("--baseLine").trim();
+
+      // Start with a reasonable image height
+      const panelH = panel.clientHeight;
+      // default: image uses ~40% of panel height, capped
+      const targetImg = Math.min(380, Math.max(170, Math.floor(panelH * 0.42)));
+      illusFrame.style.height = targetImg + "px";
+
+      // If no image visible, no need to size it
+      if (illusWrap.style.display === "none"){
+        illusFrame.style.height = "0px";
+      }
+
+      const minFont = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--minFont"), 10) || 16;
+      let font = parseInt(getComputedStyle(storyEl).fontSize, 10) || 22;
+
+      // Helper: check if content fits in panel
+      const fits = () => panel.scrollHeight <= panel.clientHeight;
+
+      // First: if overflowing, reduce image height a bit before shrinking text
+      let imgH = parseInt(illusFrame.style.height, 10) || 0;
+      let imgSteps = 0;
+      while (!fits() && illusWrap.style.display !== "none" && imgH > 160 && imgSteps < 10){
+        imgH -= 20;
+        illusFrame.style.height = imgH + "px";
+        imgSteps++;
+      }
+
+      // Then: shrink text down to minFont
+      let steps = 0;
+      while (!fits() && font > minFont && steps < 20){
+        font -= 1;
+        storyEl.style.fontSize = font + "px";
+        steps++;
+      }
+
+      // Last resort: slightly tighten line height (still readable)
+      let lh = parseFloat(getComputedStyle(storyEl).lineHeight) || 1.55;
+      let lhSteps = 0;
+      while (!fits() && lh > 1.32 && lhSteps < 10){
+        lh -= 0.03;
+        storyEl.style.lineHeight = lh.toFixed(2);
+        lhSteps++;
+      }
     }
 
     function render(i){
@@ -401,22 +487,17 @@
         storyEl.appendChild(p);
       });
 
-      // Image (optional)
+      // Image
       const imgPath = pages[idx].img;
       if (imgPath){
+        illusWrap.style.display = "block";
         illus.classList.remove("loaded");
         illusLoading.style.display = "flex";
-        illusWrap.style.display = "block";
         illus.alt = "Illustration for page " + (idx + 1);
 
-        // Force new load only if changed
         if (illus.getAttribute("data-src") !== imgPath){
           illus.setAttribute("data-src", imgPath);
           illus.src = imgPath;
-        } else {
-          // Already loaded previously
-          illus.classList.add("loaded");
-          illusLoading.style.display = "none";
         }
       } else {
         illusWrap.style.display = "none";
@@ -424,7 +505,7 @@
         illus.removeAttribute("data-src");
       }
 
-      // Progress + labels
+      // Progress
       pageLabel.textContent = `Page ${idx + 1} of ${pages.length}`;
       bar.style.width = `${Math.round(((idx + 1) / pages.length) * 100)}%`;
 
@@ -436,6 +517,11 @@
       // Save place
       try { localStorage.setItem(STORAGE_KEY, String(idx)); } catch(e) {}
       currentIndex = idx;
+
+      // Fit after layout settles
+      requestAnimationFrame(() => {
+        autoFit();
+      });
     }
 
     let currentIndex = loadIndex();
@@ -458,24 +544,30 @@
 
     homeBtn.addEventListener("click", () => {
       render(0);
-      try { localStorage.setItem(STORAGE_KEY, "0"); } catch(e) {}
       showToast("Back to start");
     });
 
     restartBtn.addEventListener("click", () => {
       render(1);
-      try { localStorage.setItem(STORAGE_KEY, "1"); } catch(e) {}
       showToast("Restarted");
     });
 
+    // When images load, fade in and refit (so it still fits without scroll)
     illus.addEventListener("load", () => {
       illus.classList.add("loaded");
       illusLoading.style.display = "none";
+      autoFit();
     });
 
     illus.addEventListener("error", () => {
       illusWrap.style.display = "none";
       showToast("Image not found (check filename/path)");
+      autoFit();
+    });
+
+    // Refit on orientation changes
+    window.addEventListener("resize", () => {
+      autoFit();
     });
   </script>
 </body>
